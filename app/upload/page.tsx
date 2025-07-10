@@ -1,0 +1,150 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useCallback } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Upload, ImageIcon, X, Camera, Sparkles } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+
+export default function UploadPage() {
+  const [uploadedImages, setUploadedImages] = useState<File[]>([])
+  const [dragActive, setDragActive] = useState(false)
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
+      setUploadedImages((prev) => [...prev, ...files])
+    }
+  }, [])
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"))
+      setUploadedImages((prev) => [...prev, ...files])
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-rose-900 via-pink-900 to-purple-900 p-4">
+      {/* Animated background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-10 right-10 w-80 h-80 bg-rose-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse delay-1000"></div>
+      </div>
+
+      <div className="relative z-10 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-gradient-to-r from-rose-500 to-purple-500 p-3 rounded-full">
+              <Camera className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-2">Share Your Moment</h1>
+          <p className="text-rose-200">Upload photos and let us find the perfect soundtrack</p>
+        </div>
+
+        {/* Upload Area */}
+        <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <ImageIcon className="w-5 h-5 mr-2 text-rose-400" />
+              Upload Your Photos
+            </CardTitle>
+            <CardDescription className="text-rose-200">Drag and drop your images or click to browse</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
+                dragActive ? "border-rose-400 bg-rose-400/10" : "border-white/30 hover:border-rose-400/50"
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <Upload className="w-12 h-12 text-rose-400 mx-auto mb-4" />
+              <p className="text-white mb-4">
+                Drop your images here, or{" "}
+                <label className="text-rose-400 hover:text-rose-300 cursor-pointer underline">
+                  browse
+                  <input type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />
+                </label>
+              </p>
+              <p className="text-rose-200 text-sm">Supports JPG, PNG, GIF up to 10MB each</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Uploaded Images */}
+        {uploadedImages.length > 0 && (
+          <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
+            <CardHeader>
+              <CardTitle className="text-white">Uploaded Images ({uploadedImages.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {uploadedImages.map((file, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
+                      <Image
+                        src={URL.createObjectURL(file) || "/placeholder.svg"}
+                        alt={`Upload ${index + 1}`}
+                        width={200}
+                        height={200}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Generate Recommendations Button */}
+        <div className="text-center">
+          <Link href="/recommendations">
+            <Button
+              className="bg-gradient-to-r from-rose-500 to-purple-500 hover:from-rose-600 hover:to-purple-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+              disabled={uploadedImages.length === 0}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate Music Recommendations
+            </Button>
+          </Link>
+          {uploadedImages.length === 0 && (
+            <p className="text-rose-200 text-sm mt-2">Please upload at least one image to continue</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
