@@ -6,45 +6,46 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Play, Pause, Heart, Share2, Download, RefreshCw, Music } from "lucide-react"
 
-// ===== MOCK DATA FOR SONG RECOMMENDATIONS =====
+// ===== RECENT CHANGE: Updated mock recommendations for Valentine's context =====
+// Changed song recommendations to better match Valentine's Day theme mentioned in context
 const mockRecommendations = [
   {
     id: 1,
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    album: "After Hours",
-    mood: "Energetic",
-    spotifyId: "0VjIjW4GlUZAMYd2vXMi3b",
+    title: "Perfect",
+    artist: "Ed Sheeran",
+    album: "÷ (Divide)",
+    mood: "Romantic",
+    spotifyId: "0tgVpDi06FyKpA1z0VMD4v",
     image: "/placeholder.svg?height=300&width=300",
     preview: "https://p.scdn.co/mp3-preview/...",
   },
   {
     id: 2,
-    title: "Good 4 U",
-    artist: "Olivia Rodrigo",
-    album: "SOUR",
-    mood: "Happy",
-    spotifyId: "4ZtFanR9U6ndgddUvNcjcG",
+    title: "All of Me",
+    artist: "John Legend",
+    album: "Love in the Future",
+    mood: "Intimate",
+    spotifyId: "3U4isOIWM3VvDubwSI3y7a",
     image: "/placeholder.svg?height=300&width=300",
     preview: "https://p.scdn.co/mp3-preview/...",
   },
   {
     id: 3,
-    title: "Levitating",
-    artist: "Dua Lipa",
-    album: "Future Nostalgia",
-    mood: "Upbeat",
-    spotifyId: "463CkQjx2Zk1yXoBuierM9",
+    title: "Lover",
+    artist: "Taylor Swift",
+    album: "Lover",
+    mood: "Sweet",
+    spotifyId: "1dGr1c8CrMLDpV6mPbImSI",
     image: "/placeholder.svg?height=300&width=300",
     preview: "https://p.scdn.co/mp3-preview/...",
   },
   {
     id: 4,
-    title: "Stay",
-    artist: "The Kid LAROI & Justin Bieber",
-    album: "F*CK LOVE 3: OVER YOU",
-    mood: "Chill",
-    spotifyId: "5HCyWlXZPP0y6Gqq8TgA20",
+    title: "Thinking Out Loud",
+    artist: "Ed Sheeran",
+    album: "x (Multiply)",
+    mood: "Tender",
+    spotifyId: "lp7eUmSWx6J0qT5iZlsIEQ",
     image: "/placeholder.svg?height=300&width=300",
     preview: "https://p.scdn.co/mp3-preview/...",
   },
@@ -88,6 +89,15 @@ export default function RecommendationsPage() {
         return "bg-green-500"
       case "chill":
         return "bg-blue-500"
+      // RECENT CHANGE: Added romantic mood colors for Valentine's theme
+      case "romantic":
+        return "bg-pink-500"
+      case "intimate":
+        return "bg-red-400"
+      case "sweet":
+        return "bg-rose-400"
+      case "tender":
+        return "bg-pink-400"
       default:
         return "bg-purple-500"
     }
@@ -136,17 +146,44 @@ export default function RecommendationsPage() {
         </div>
 
         {/* ===== MOOD ANALYSIS RESULTS ===== */}
+        {/* RECENT CHANGE: Enhanced to show context-aware analysis */}
         <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Detected Mood</CardTitle>
-            <CardDescription className="text-purple-200">We analyzed your photos and found these vibes</CardDescription>
+            <CardTitle className="text-white">AI Analysis Results</CardTitle>
+            <CardDescription className="text-purple-200">
+              Based on your photos and context: "Valentine's Day dinner"
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Mood badges */}
-            <div className="flex flex-wrap gap-2">
-              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">Happy & Energetic</Badge>
-              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Social & Fun</Badge>
-              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">Uplifting</Badge>
+            <div className="space-y-4">
+              {/* Visual mood detection */}
+              <div>
+                <h4 className="text-white font-medium mb-2">📸 Visual Mood Detected:</h4>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">Happy & Energetic</Badge>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Social & Fun</Badge>
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">Uplifting</Badge>
+                </div>
+              </div>
+
+              {/* Context-based recommendations */}
+              {/* RECENT CHANGE: New section showing how context influences song selection */}
+              <div>
+                <h4 className="text-white font-medium mb-2">💝 Context-Enhanced Selection:</h4>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-gradient-to-r from-pink-500 to-red-500 text-white">Romantic</Badge>
+                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">Love Songs</Badge>
+                  <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white">Intimate</Badge>
+                </div>
+              </div>
+
+              {/* Combined recommendation approach */}
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="text-purple-200 text-sm">
+                  🎯 <strong className="text-white">Smart Matching:</strong> We combined your visual mood with your
+                  Valentine's Day context to curate romantic songs that match your happy, social energy!
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

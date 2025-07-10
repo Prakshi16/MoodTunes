@@ -8,11 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Upload, ImageIcon, X, Camera, Sparkles } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 export default function UploadPage() {
   // ===== STATE MANAGEMENT =====
   const [uploadedImages, setUploadedImages] = useState<File[]>([])
   const [dragActive, setDragActive] = useState(false)
+  const [contextComment, setContextComment] = useState("")
 
   // ===== DRAG AND DROP HANDLERS =====
   // Handle drag events (enter, over, leave)
@@ -113,6 +116,41 @@ export default function UploadPage() {
 
               {/* File format and size info */}
               <p className="text-rose-200 text-sm">Supports JPG, PNG, GIF up to 10MB each</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ===== CONTEXT COMMENT SECTION ===== */}
+        {/* RECENT CHANGE: New section for users to provide context about their photos */}
+        <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Sparkles className="w-5 h-5 mr-2 text-rose-400" />
+              Tell Us More
+            </CardTitle>
+            <CardDescription className="text-rose-200">
+              Help us understand the context of your photos for better recommendations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="context" className="text-white">
+                What's the occasion or mood? (Optional)
+              </Label>
+              <Textarea
+                id="context"
+                placeholder="e.g., It's Valentine's Day, Birthday celebration, Road trip with friends, Cozy evening at home, Workout session, etc."
+                value={contextComment}
+                onChange={(e) => setContextComment(e.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-rose-200 min-h-[100px] resize-none"
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center">
+                <p className="text-rose-300 text-xs">
+                  💡 Examples: "Valentine's dinner", "Birthday party", "Beach vacation", "Study session"
+                </p>
+                <span className="text-rose-300 text-xs">{contextComment.length}/500</span>
+              </div>
             </div>
           </CardContent>
         </Card>
