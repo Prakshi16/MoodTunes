@@ -9,37 +9,50 @@ import { Music, Sparkles, Heart, Users } from "lucide-react"
 import Link from "next/link"
 
 export default function LoginPage() {
+  // ===== STATE MANAGEMENT =====
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4">
-      {/* Animated background elements */}
+      {/* ===== ANIMATED BACKGROUND ELEMENTS ===== */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Purple floating orb - top right */}
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+
+        {/* Blue floating orb - bottom left */}
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-1000"></div>
+
+        {/* Indigo floating orb - center */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse delay-500"></div>
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Logo and Title */}
+        {/* ===== LOGO AND BRAND SECTION ===== */}
         <div className="text-center mb-8">
+          {/* App logo with gradient background */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-gradient-to-r from-pink-500 to-violet-500 p-3 rounded-full">
               <Music className="w-8 h-8 text-white" />
             </div>
           </div>
+
+          {/* App title and tagline */}
           <h1 className="text-4xl font-bold text-white mb-2">MoodTunes</h1>
           <p className="text-purple-200">Discover music that matches your vibe</p>
         </div>
 
-        {/* Login Card */}
+        {/* ===== LOGIN FORM CARD ===== */}
         <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl">
+          {/* Card header with welcome message */}
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
             <CardDescription className="text-purple-200">Sign in to discover your perfect soundtrack</CardDescription>
           </CardHeader>
+
+          {/* Form content */}
           <CardContent className="space-y-4">
+            {/* Email input field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-white">
                 Email
@@ -53,6 +66,8 @@ export default function LoginPage() {
                 className="bg-white/10 border-white/20 text-white placeholder:text-purple-200"
               />
             </div>
+
+            {/* Password input field */}
             <div className="space-y-2">
               <Label htmlFor="password" className="text-white">
                 Password
@@ -66,12 +81,16 @@ export default function LoginPage() {
                 className="bg-white/10 border-white/20 text-white placeholder:text-purple-200"
               />
             </div>
+
+            {/* Sign in button with navigation */}
             <Link href="/preferences">
               <Button className="w-full bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 hover:to-violet-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Sign In
               </Button>
             </Link>
+
+            {/* Sign up link */}
             <div className="text-center">
               <a href="#" className="text-purple-200 hover:text-white text-sm">
                 Don't have an account? Sign up
@@ -80,16 +99,21 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Features */}
+        {/* ===== FEATURE HIGHLIGHTS SECTION ===== */}
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+          {/* Smart Recommendations feature */}
           <div className="text-white">
             <Music className="w-6 h-6 mx-auto mb-2 text-pink-400" />
             <p className="text-xs">Smart Recommendations</p>
           </div>
+
+          {/* Mood Detection feature */}
           <div className="text-white">
             <Heart className="w-6 h-6 mx-auto mb-2 text-red-400" />
             <p className="text-xs">Mood Detection</p>
           </div>
+
+          {/* Social Sharing feature */}
           <div className="text-white">
             <Users className="w-6 h-6 mx-auto mb-2 text-blue-400" />
             <p className="text-xs">Social Sharing</p>

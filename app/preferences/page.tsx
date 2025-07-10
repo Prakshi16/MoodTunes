@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Music, ArrowRight, Globe, Mic } from "lucide-react"
 import Link from "next/link"
 
+// ===== STATIC DATA ARRAYS =====
 const languages = [
   "English",
   "Spanish",
@@ -41,39 +42,50 @@ const artists = [
 ]
 
 export default function PreferencesPage() {
+  // ===== STATE MANAGEMENT =====
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
   const [selectedArtists, setSelectedArtists] = useState<string[]>([])
 
+  // ===== HELPER FUNCTIONS =====
+  // Toggle language selection - add if not present, remove if present
   const toggleLanguage = (language: string) => {
     setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
   }
 
+  // Toggle artist selection - add if not present, remove if present
   const toggleArtist = (artist: string) => {
     setSelectedArtists((prev) => (prev.includes(artist) ? prev.filter((a) => a !== artist) : [...prev, artist]))
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900 p-4">
-      {/* Animated background */}
+      {/* ===== ANIMATED BACKGROUND ELEMENTS ===== */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Emerald floating orb - top left */}
         <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
+
+        {/* Cyan floating orb - bottom right */}
         <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Header */}
+        {/* ===== PAGE HEADER SECTION ===== */}
         <div className="text-center mb-8">
+          {/* App logo with emerald-cyan gradient */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-gradient-to-r from-emerald-500 to-cyan-500 p-3 rounded-full">
               <Music className="w-8 h-8 text-white" />
             </div>
           </div>
+
+          {/* Page title and description */}
           <h1 className="text-4xl font-bold text-white mb-2">Tell Us Your Taste</h1>
           <p className="text-emerald-200">Help us understand your music preferences</p>
         </div>
 
+        {/* ===== PREFERENCE SELECTION CARDS ===== */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* Languages */}
+          {/* ===== LANGUAGES SELECTION CARD ===== */}
           <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
@@ -85,6 +97,7 @@ export default function PreferencesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Language badges grid */}
               <div className="flex flex-wrap gap-2">
                 {languages.map((language) => (
                   <Badge
@@ -104,7 +117,7 @@ export default function PreferencesPage() {
             </CardContent>
           </Card>
 
-          {/* Artists */}
+          {/* ===== ARTISTS SELECTION CARD ===== */}
           <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
@@ -114,6 +127,7 @@ export default function PreferencesPage() {
               <CardDescription className="text-emerald-200">Choose artists you love to listen to</CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Artist badges grid */}
               <div className="flex flex-wrap gap-2">
                 {artists.map((artist) => (
                   <Badge
@@ -134,7 +148,7 @@ export default function PreferencesPage() {
           </Card>
         </div>
 
-        {/* Continue Button */}
+        {/* ===== CONTINUE BUTTON SECTION ===== */}
         <div className="text-center">
           <Link href="/upload">
             <Button
@@ -147,7 +161,8 @@ export default function PreferencesPage() {
           </Link>
         </div>
 
-        {/* Selection Summary */}
+        {/* ===== SELECTION SUMMARY ===== */}
+        {/* Show summary only if user has made selections */}
         {(selectedLanguages.length > 0 || selectedArtists.length > 0) && (
           <div className="mt-8 text-center">
             <p className="text-white/80 text-sm">

@@ -10,9 +10,12 @@ import Link from "next/link"
 import Image from "next/image"
 
 export default function UploadPage() {
+  // ===== STATE MANAGEMENT =====
   const [uploadedImages, setUploadedImages] = useState<File[]>([])
   const [dragActive, setDragActive] = useState(false)
 
+  // ===== DRAG AND DROP HANDLERS =====
+  // Handle drag events (enter, over, leave)
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -23,17 +26,21 @@ export default function UploadPage() {
     }
   }, [])
 
+  // Handle file drop event
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
 
+    // Process dropped files - filter for images only
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
       setUploadedImages((prev) => [...prev, ...files])
     }
   }, [])
 
+  // ===== FILE INPUT HANDLERS =====
+  // Handle file selection via input element
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files).filter((file) => file.type.startsWith("image/"))
@@ -41,31 +48,38 @@ export default function UploadPage() {
     }
   }
 
+  // Remove image from uploaded list
   const removeImage = (index: number) => {
     setUploadedImages((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-900 via-pink-900 to-purple-900 p-4">
-      {/* Animated background */}
+      {/* ===== ANIMATED BACKGROUND ELEMENTS ===== */}
       <div className="absolute inset-0 overflow-hidden">
+        {/* Rose floating orb - top right */}
         <div className="absolute top-10 right-10 w-80 h-80 bg-rose-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
+
+        {/* Purple floating orb - bottom left */}
         <div className="absolute bottom-10 left-10 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Header */}
+        {/* ===== PAGE HEADER SECTION ===== */}
         <div className="text-center mb-8">
+          {/* App logo with rose-purple gradient */}
           <div className="flex items-center justify-center mb-4">
             <div className="bg-gradient-to-r from-rose-500 to-purple-500 p-3 rounded-full">
               <Camera className="w-8 h-8 text-white" />
             </div>
           </div>
+
+          {/* Page title and description */}
           <h1 className="text-4xl font-bold text-white mb-2">Share Your Moment</h1>
           <p className="text-rose-200">Upload photos and let us find the perfect soundtrack</p>
         </div>
 
-        {/* Upload Area */}
+        {/* ===== FILE UPLOAD AREA ===== */}
         <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
@@ -75,6 +89,7 @@ export default function UploadPage() {
             <CardDescription className="text-rose-200">Drag and drop your images or click to browse</CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Drag and drop zone */}
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
                 dragActive ? "border-rose-400 bg-rose-400/10" : "border-white/30 hover:border-rose-400/50"
@@ -84,7 +99,10 @@ export default function UploadPage() {
               onDragOver={handleDrag}
               onDrop={handleDrop}
             >
+              {/* Upload icon */}
               <Upload className="w-12 h-12 text-rose-400 mx-auto mb-4" />
+
+              {/* Upload instructions */}
               <p className="text-white mb-4">
                 Drop your images here, or{" "}
                 <label className="text-rose-400 hover:text-rose-300 cursor-pointer underline">
@@ -92,21 +110,25 @@ export default function UploadPage() {
                   <input type="file" multiple accept="image/*" onChange={handleFileInput} className="hidden" />
                 </label>
               </p>
+
+              {/* File format and size info */}
               <p className="text-rose-200 text-sm">Supports JPG, PNG, GIF up to 10MB each</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Uploaded Images */}
+        {/* ===== UPLOADED IMAGES GALLERY ===== */}
         {uploadedImages.length > 0 && (
           <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
             <CardHeader>
               <CardTitle className="text-white">Uploaded Images ({uploadedImages.length})</CardTitle>
             </CardHeader>
             <CardContent>
+              {/* Image grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {uploadedImages.map((file, index) => (
                   <div key={index} className="relative group">
+                    {/* Image container */}
                     <div className="aspect-square rounded-lg overflow-hidden bg-white/5">
                       <Image
                         src={URL.createObjectURL(file) || "/placeholder.svg"}
@@ -116,6 +138,8 @@ export default function UploadPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
+
+                    {/* Remove button - appears on hover */}
                     <button
                       onClick={() => removeImage(index)}
                       className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -129,7 +153,7 @@ export default function UploadPage() {
           </Card>
         )}
 
-        {/* Generate Recommendations Button */}
+        {/* ===== GENERATE RECOMMENDATIONS SECTION ===== */}
         <div className="text-center">
           <Link href="/recommendations">
             <Button
@@ -140,6 +164,8 @@ export default function UploadPage() {
               Generate Music Recommendations
             </Button>
           </Link>
+
+          {/* Show instruction if no images uploaded */}
           {uploadedImages.length === 0 && (
             <p className="text-rose-200 text-sm mt-2">Please upload at least one image to continue</p>
           )}
