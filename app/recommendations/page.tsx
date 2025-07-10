@@ -4,103 +4,112 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Play, Pause, Heart, Share2, Download, RefreshCw, Music } from "lucide-react"
-
-// ===== RECENT CHANGE: Updated mock recommendations for Valentine's context =====
-// Changed song recommendations to better match Valentine's Day theme mentioned in context
-const mockRecommendations = [
-  {
-    id: 1,
-    title: "Perfect",
-    artist: "Ed Sheeran",
-    album: "÷ (Divide)",
-    mood: "Romantic",
-    spotifyId: "0tgVpDi06FyKpA1z0VMD4v",
-    image: "/placeholder.svg?height=300&width=300",
-    preview: "https://p.scdn.co/mp3-preview/...",
-  },
-  {
-    id: 2,
-    title: "All of Me",
-    artist: "John Legend",
-    album: "Love in the Future",
-    mood: "Intimate",
-    spotifyId: "3U4isOIWM3VvDubwSI3y7a",
-    image: "/placeholder.svg?height=300&width=300",
-    preview: "https://p.scdn.co/mp3-preview/...",
-  },
-  {
-    id: 3,
-    title: "Lover",
-    artist: "Taylor Swift",
-    album: "Lover",
-    mood: "Sweet",
-    spotifyId: "1dGr1c8CrMLDpV6mPbImSI",
-    image: "/placeholder.svg?height=300&width=300",
-    preview: "https://p.scdn.co/mp3-preview/...",
-  },
-  {
-    id: 4,
-    title: "Thinking Out Loud",
-    artist: "Ed Sheeran",
-    album: "x (Multiply)",
-    mood: "Tender",
-    spotifyId: "lp7eUmSWx6J0qT5iZlsIEQ",
-    image: "/placeholder.svg?height=300&width=300",
-    preview: "https://p.scdn.co/mp3-preview/...",
-  },
-]
+import { Play, Pause, Heart, Share2, Download, RefreshCw, Music, ExternalLink } from "lucide-react"
+import type { SpotifyTrack } from "@/lib/spotify"
 
 export default function RecommendationsPage() {
   // ===== STATE MANAGEMENT =====
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null)
-  const [likedSongs, setLikedSongs] = useState<number[]>([])
+  const [recommendations, setRecommendations] = useState<SpotifyTrack[]>([])
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null)
+  const [likedSongs, setLikedSongs] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null)
 
-  // ===== LOADING SIMULATION =====
+  // ===== LOADING AND DATA FETCHING =====
   useEffect(() => {
-    // Simulate AI processing time for recommendations
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-    return () => clearTimeout(timer)
+    fetchRecommendations()
   }, [])
+
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Simulate mood detection from uploaded images
+      const detectedMood = "happy" // This would come from image analysis
+
+      const response = await fetch("/api/spotify/recommendations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mood: detectedMood,
+          genres: ["pop", "indie", "electronic"],
+          artists: [], // Could be populated from user preferences
+          limit: 20,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch recommendations")
+      }
+
+      const data = await response.json()
+      setRecommendations(data.tracks)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // ===== INTERACTION HANDLERS =====
   // Toggle play/pause for song preview
-  const togglePlay = (songId: number) => {
-    setCurrentlyPlaying(currentlyPlaying === songId ? null : songId)
+  const togglePlay = async (track: SpotifyTrack) => {
+    if (!track.preview_url) {
+      // If no preview available, open Spotify
+      window.open(track.external_urls.spotify, "_blank")
+      return
+    }
+
+    if (currentlyPlaying === track.id) {
+      // Pause current track
+      if (currentAudio) {
+        currentAudio.pause()
+        setCurrentAudio(null)
+      }
+      setCurrentlyPlaying(null)
+    } else {
+      // Stop any currently playing audio
+      if (currentAudio) {
+        currentAudio.pause()
+      }
+
+      // Play new track
+      const audio = new Audio(track.preview_url)
+      audio.play()
+
+      audio.onended = () => {
+        setCurrentlyPlaying(null)
+        setCurrentAudio(null)
+      }
+
+      setCurrentAudio(audio)
+      setCurrentlyPlaying(track.id)
+    }
   }
 
   // Toggle like status for songs
-  const toggleLike = (songId: number) => {
-    setLikedSongs((prev) => (prev.includes(songId) ? prev.filter((id) => id !== songId) : [...prev, songId]))
+  const toggleLike = (trackId: string) => {
+    setLikedSongs((prev) => (prev.includes(trackId) ? prev.filter((id) => id !== trackId) : [...prev, trackId]))
   }
 
   // ===== UTILITY FUNCTIONS =====
   // Get color class based on mood type
-  const getMoodColor = (mood: string) => {
-    switch (mood.toLowerCase()) {
-      case "energetic":
-        return "bg-red-500"
-      case "happy":
-        return "bg-yellow-500"
-      case "upbeat":
-        return "bg-green-500"
-      case "chill":
-        return "bg-blue-500"
-      // RECENT CHANGE: Added romantic mood colors for Valentine's theme
-      case "romantic":
-        return "bg-pink-500"
-      case "intimate":
-        return "bg-red-400"
-      case "sweet":
-        return "bg-rose-400"
-      case "tender":
-        return "bg-pink-400"
-      default:
-        return "bg-purple-500"
-    }
+  const getMoodColor = (popularity: number) => {
+    if (popularity >= 80) return "bg-green-500"
+    if (popularity >= 60) return "bg-yellow-500"
+    if (popularity >= 40) return "bg-orange-500"
+    return "bg-red-500"
+  }
+
+  // Format duration from milliseconds to mm:ss
+  const formatDuration = (ms: number) => {
+    const minutes = Math.floor(ms / 60000)
+    const seconds = Math.floor((ms % 60000) / 1000)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
   }
 
   // ===== LOADING STATE =====
@@ -114,6 +123,21 @@ export default function RecommendationsPage() {
           {/* Loading messages */}
           <h2 className="text-2xl font-bold text-white mb-2">Analyzing Your Photos</h2>
           <p className="text-purple-200">Finding the perfect soundtrack for your moment...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ===== ERROR STATE =====
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-2">Oops! Something went wrong</h2>
+          <p className="text-purple-200 mb-4">{error}</p>
+          <Button onClick={fetchRecommendations} className="bg-gradient-to-r from-indigo-500 to-purple-500">
+            Try Again
+          </Button>
         </div>
       </div>
     )
@@ -142,57 +166,30 @@ export default function RecommendationsPage() {
 
           {/* Page title and description */}
           <h1 className="text-4xl font-bold text-white mb-2">Your Perfect Playlist</h1>
-          <p className="text-purple-200">Based on the mood of your photos</p>
+          <p className="text-purple-200">Powered by Spotify - Based on the mood of your photos</p>
         </div>
 
         {/* ===== MOOD ANALYSIS RESULTS ===== */}
-        {/* RECENT CHANGE: Enhanced to show context-aware analysis */}
         <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl mb-8">
           <CardHeader>
-            <CardTitle className="text-white">AI Analysis Results</CardTitle>
-            <CardDescription className="text-purple-200">
-              Based on your photos and context: "Valentine's Day dinner"
-            </CardDescription>
+            <CardTitle className="text-white">Detected Mood</CardTitle>
+            <CardDescription className="text-purple-200">We analyzed your photos and found these vibes</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {/* Visual mood detection */}
-              <div>
-                <h4 className="text-white font-medium mb-2">📸 Visual Mood Detected:</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">Happy & Energetic</Badge>
-                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Social & Fun</Badge>
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">Uplifting</Badge>
-                </div>
-              </div>
-
-              {/* Context-based recommendations */}
-              {/* RECENT CHANGE: New section showing how context influences song selection */}
-              <div>
-                <h4 className="text-white font-medium mb-2">💝 Context-Enhanced Selection:</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-gradient-to-r from-pink-500 to-red-500 text-white">Romantic</Badge>
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">Love Songs</Badge>
-                  <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white">Intimate</Badge>
-                </div>
-              </div>
-
-              {/* Combined recommendation approach */}
-              <div className="bg-white/5 rounded-lg p-3">
-                <p className="text-purple-200 text-sm">
-                  🎯 <strong className="text-white">Smart Matching:</strong> We combined your visual mood with your
-                  Valentine's Day context to curate romantic songs that match your happy, social energy!
-                </p>
-              </div>
+            {/* Mood badges */}
+            <div className="flex flex-wrap gap-2">
+              <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white">Happy & Energetic</Badge>
+              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Social & Fun</Badge>
+              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">Uplifting</Badge>
             </div>
           </CardContent>
         </Card>
 
         {/* ===== SONG RECOMMENDATIONS GRID ===== */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {mockRecommendations.map((song) => (
+          {recommendations.map((track) => (
             <Card
-              key={song.id}
+              key={track.id}
               className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300"
             >
               <CardContent className="p-6">
@@ -200,17 +197,17 @@ export default function RecommendationsPage() {
                   {/* ===== ALBUM ARTWORK WITH PLAY BUTTON ===== */}
                   <div className="relative">
                     <img
-                      src={song.image || "/placeholder.svg"}
-                      alt={song.title}
+                      src={track.album.images[0]?.url || "/placeholder.svg"}
+                      alt={track.name}
                       className="w-20 h-20 rounded-lg object-cover"
                     />
 
                     {/* Play/Pause overlay button */}
                     <button
-                      onClick={() => togglePlay(song.id)}
+                      onClick={() => togglePlay(track)}
                       className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 hover:opacity-100 transition-opacity"
                     >
-                      {currentlyPlaying === song.id ? (
+                      {currentlyPlaying === track.id ? (
                         <Pause className="w-6 h-6 text-white" />
                       ) : (
                         <Play className="w-6 h-6 text-white" />
@@ -220,19 +217,24 @@ export default function RecommendationsPage() {
 
                   {/* ===== SONG INFORMATION ===== */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-white truncate">{song.title}</h3>
-                    <p className="text-purple-200 truncate">{song.artist}</p>
-                    <p className="text-purple-300 text-sm truncate">{song.album}</p>
-                    <Badge className={`mt-2 ${getMoodColor(song.mood)} text-white text-xs`}>{song.mood}</Badge>
+                    <h3 className="text-lg font-semibold text-white truncate">{track.name}</h3>
+                    <p className="text-purple-200 truncate">{track.artists.map((artist) => artist.name).join(", ")}</p>
+                    <p className="text-purple-300 text-sm truncate">{track.album.name}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge className={`${getMoodColor(track.popularity)} text-white text-xs`}>
+                        {track.popularity}% Popular
+                      </Badge>
+                      <span className="text-purple-300 text-xs">{formatDuration(track.duration_ms)}</span>
+                    </div>
                   </div>
 
                   {/* ===== ACTION BUTTONS ===== */}
                   <div className="flex flex-col space-y-2">
                     {/* Like/Unlike button */}
                     <button
-                      onClick={() => toggleLike(song.id)}
+                      onClick={() => toggleLike(track.id)}
                       className={`p-2 rounded-full transition-colors ${
-                        likedSongs.includes(song.id)
+                        likedSongs.includes(track.id)
                           ? "bg-red-500 text-white"
                           : "bg-white/10 text-white hover:bg-white/20"
                       }`}
@@ -241,25 +243,40 @@ export default function RecommendationsPage() {
                     </button>
 
                     {/* Share button */}
-                    <button className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                    <button
+                      onClick={() =>
+                        navigator.share?.({
+                          title: track.name,
+                          url: track.external_urls.spotify,
+                        })
+                      }
+                      className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    >
                       <Share2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* ===== SPOTIFY INTEGRATION PLACEHOLDER ===== */}
+                {/* ===== SPOTIFY INTEGRATION ===== */}
                 <div className="mt-4 p-4 bg-black/20 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      {/* Spotify logo placeholder */}
+                      {/* Spotify logo */}
                       <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                         <Play className="w-4 h-4 text-white" />
                       </div>
-                      <span className="text-white text-sm">Play on Spotify</span>
+                      <span className="text-white text-sm">
+                        {track.preview_url ? "Preview Available" : "Open in Spotify"}
+                      </span>
                     </div>
 
                     {/* Open Spotify button */}
-                    <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white">
+                    <Button
+                      size="sm"
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                      onClick={() => window.open(track.external_urls.spotify, "_blank")}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
                       Open
                     </Button>
                   </div>
@@ -272,7 +289,10 @@ export default function RecommendationsPage() {
         {/* ===== ACTION BUTTONS SECTION ===== */}
         <div className="flex flex-wrap justify-center gap-4">
           {/* Get new recommendations */}
-          <Button className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white">
+          <Button
+            onClick={fetchRecommendations}
+            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white"
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Get New Recommendations
           </Button>
@@ -288,6 +308,12 @@ export default function RecommendationsPage() {
             <Share2 className="w-4 h-4 mr-2" />
             Share Results
           </Button>
+        </div>
+
+        {/* ===== SPOTIFY ATTRIBUTION ===== */}
+        <div className="text-center mt-8 text-purple-300 text-sm">
+          Powered by <span className="text-green-400 font-semibold">Spotify</span> • Music recommendations based on your
+          photo analysis
         </div>
       </div>
     </div>

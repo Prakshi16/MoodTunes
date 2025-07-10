@@ -4,11 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Music, ArrowRight, Globe, Mic } from "lucide-react"
+import { Music, Languages, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 // ===== STATIC DATA ARRAYS =====
-const languages = [
+const availableLanguages = [
   "English",
   "Spanish",
   "French",
@@ -23,22 +23,22 @@ const languages = [
   "Russian",
 ]
 
-const artists = [
+const popularArtists = [
   "Taylor Swift",
-  "Drake",
+  "Ed Sheeran",
   "Billie Eilish",
   "The Weeknd",
   "Ariana Grande",
-  "Ed Sheeran",
+  "Drake",
   "Dua Lipa",
   "Post Malone",
   "Olivia Rodrigo",
   "Harry Styles",
   "BTS",
   "Bad Bunny",
+  "Adele",
+  "Justin Bieber",
   "Doja Cat",
-  "Travis Scott",
-  "Lana Del Rey",
 ]
 
 export default function PreferencesPage() {
@@ -47,12 +47,12 @@ export default function PreferencesPage() {
   const [selectedArtists, setSelectedArtists] = useState<string[]>([])
 
   // ===== HELPER FUNCTIONS =====
-  // Toggle language selection - add if not present, remove if present
+  // Toggle language selection
   const toggleLanguage = (language: string) => {
     setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
   }
 
-  // Toggle artist selection - add if not present, remove if present
+  // Toggle artist selection
   const toggleArtist = (artist: string) => {
     setSelectedArtists((prev) => (prev.includes(artist) ? prev.filter((a) => a !== artist) : [...prev, artist]))
   }
@@ -61,11 +61,11 @@ export default function PreferencesPage() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900 p-4">
       {/* ===== ANIMATED BACKGROUND ELEMENTS ===== */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Emerald floating orb - top left */}
-        <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
+        {/* Emerald floating orb - top right */}
+        <div className="absolute top-10 right-10 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse"></div>
 
-        {/* Cyan floating orb - bottom right */}
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse delay-1000"></div>
+        {/* Cyan floating orb - bottom left */}
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto">
@@ -80,35 +80,34 @@ export default function PreferencesPage() {
 
           {/* Page title and description */}
           <h1 className="text-4xl font-bold text-white mb-2">Tell Us Your Taste</h1>
-          <p className="text-emerald-200">Help us understand your music preferences</p>
+          <p className="text-emerald-200">Help us personalize your music recommendations</p>
         </div>
 
         {/* ===== PREFERENCE SELECTION CARDS ===== */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {/* ===== LANGUAGES SELECTION CARD ===== */}
+        <div className="space-y-8">
+          {/* Language preferences card */}
           <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <Globe className="w-5 h-5 mr-2 text-emerald-400" />
-                Languages
+                <Languages className="w-5 h-5 mr-2 text-emerald-400" />
+                Preferred Languages
               </CardTitle>
               <CardDescription className="text-emerald-200">
                 Select the languages you enjoy listening to
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Language badges grid */}
+              {/* Language selection badges */}
               <div className="flex flex-wrap gap-2">
-                {languages.map((language) => (
+                {availableLanguages.map((language) => (
                   <Badge
                     key={language}
-                    variant={selectedLanguages.includes(language) ? "default" : "outline"}
+                    onClick={() => toggleLanguage(language)}
                     className={`cursor-pointer transition-all duration-200 ${
                       selectedLanguages.includes(language)
                         ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-                        : "border-white/30 text-white hover:bg-white/10"
+                        : "bg-white/10 text-emerald-200 hover:bg-white/20"
                     }`}
-                    onClick={() => toggleLanguage(language)}
                   >
                     {language}
                   </Badge>
@@ -117,28 +116,27 @@ export default function PreferencesPage() {
             </CardContent>
           </Card>
 
-          {/* ===== ARTISTS SELECTION CARD ===== */}
+          {/* Artist preferences card */}
           <Card className="backdrop-blur-lg bg-white/10 border-white/20 shadow-2xl">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <Mic className="w-5 h-5 mr-2 text-cyan-400" />
+                <Users className="w-5 h-5 mr-2 text-cyan-400" />
                 Favorite Artists
               </CardTitle>
-              <CardDescription className="text-emerald-200">Choose artists you love to listen to</CardDescription>
+              <CardDescription className="text-emerald-200">Choose artists whose music you love</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Artist badges grid */}
+              {/* Artist selection badges */}
               <div className="flex flex-wrap gap-2">
-                {artists.map((artist) => (
+                {popularArtists.map((artist) => (
                   <Badge
                     key={artist}
-                    variant={selectedArtists.includes(artist) ? "default" : "outline"}
+                    onClick={() => toggleArtist(artist)}
                     className={`cursor-pointer transition-all duration-200 ${
                       selectedArtists.includes(artist)
-                        ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-                        : "border-white/30 text-white hover:bg-white/10"
+                        ? "bg-gradient-to-r from-cyan-500 to-emerald-500 text-white"
+                        : "bg-white/10 text-cyan-200 hover:bg-white/20"
                     }`}
-                    onClick={() => toggleArtist(artist)}
                   >
                     {artist}
                   </Badge>
@@ -149,7 +147,7 @@ export default function PreferencesPage() {
         </div>
 
         {/* ===== CONTINUE BUTTON SECTION ===== */}
-        <div className="text-center">
+        <div className="mt-8 text-center">
           <Link href="/upload">
             <Button
               className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
@@ -159,17 +157,14 @@ export default function PreferencesPage() {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
-        </div>
 
-        {/* ===== SELECTION SUMMARY ===== */}
-        {/* Show summary only if user has made selections */}
-        {(selectedLanguages.length > 0 || selectedArtists.length > 0) && (
-          <div className="mt-8 text-center">
-            <p className="text-white/80 text-sm">
+          {/* Selection summary */}
+          {(selectedLanguages.length > 0 || selectedArtists.length > 0) && (
+            <div className="mt-4 text-emerald-200 text-sm">
               Selected: {selectedLanguages.length} languages, {selectedArtists.length} artists
-            </p>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
