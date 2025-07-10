@@ -1,3 +1,6 @@
+// Force this Route Handler to run in the Node.js runtime — Buffer is not available in Edge.
+export const runtime = "nodejs"
+
 import { type NextRequest, NextResponse } from "next/server"
 import { getRecommendations, getMoodAudioFeatures, getClientCredentialsToken } from "@/lib/spotify"
 
