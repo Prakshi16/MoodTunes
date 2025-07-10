@@ -69,11 +69,16 @@ export function getSpotifyAuthUrl(): string {
 }
 
 export async function getSpotifyAccessToken(code: string): Promise<string> {
+  const basicAuth =
+    typeof Buffer !== "undefined"
+      ? Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")
+      : // Edge / browser fall-back
+        btoa(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`)
   const response = await fetch(SPOTIFY_TOKEN_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
+      Authorization: `Basic ${basicAuth}`,
     },
     body: new URLSearchParams({
       grant_type: "authorization_code",
@@ -92,11 +97,16 @@ export async function getSpotifyAccessToken(code: string): Promise<string> {
 
 // ===== CLIENT CREDENTIALS FLOW (FOR PUBLIC DATA) =====
 export async function getClientCredentialsToken(): Promise<string> {
+  const basicAuth =
+    typeof Buffer !== "undefined"
+      ? Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")
+      : // Edge / browser fall-back
+        btoa(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`)
   const response = await fetch(SPOTIFY_TOKEN_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
+      Authorization: `Basic ${basicAuth}`,
     },
     body: new URLSearchParams({
       grant_type: "client_credentials",
